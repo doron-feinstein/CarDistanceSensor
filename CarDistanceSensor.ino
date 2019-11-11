@@ -1,36 +1,11 @@
-// Enable serial oupt
-#define DEBUG 1
+/**
+ * Car distance sensor project by Doron Feinstein
+ * @see https://github.com/doron-feinstein/CarDistanceSensor.git
+ */
 
-// TMP36 sensor analog pin
-#define TEMP_PIN 0
-
-// Echo sensor 
-#define TRIG_PIN 12
-#define ECHO_PIN 11
-#define PULSE_TIMEOUT 150000L  // 150ms in microseconds
-#define MAX_DISTANCE 400  // According to spec can measure up to 4 meter (400mm)
-
-// We can save a few ATMega pins by using a shift register for the LEDs
-// At the moment this is not needed as this project doesnt use all the pins
-#define USE_SHIFT_REGISTER 0
-#if USE_SHIFT_REGISTER
-// Shift register pins
-#define DATA 8
-#define CLOCCK 10
-#define LATCH 9
-#else
-// When not using the shift register the LED pins need to be defined
-// The array goes from the green LED for long distance at index 0 to
-//  the red LED at the shortest distance
-int ledPins[8] = {2, 3, 4, 5, 6, 7, 8, 9};
-#endif // USE_SHIFT_REGISTER
-
-// Amount of time in ms to wait before shutting down
-#define SLEEP_DELAY 10000
-#define SLEEP_DIST_THESHOLD 5
-
-// LED distance thresholds in cm
-long threshold[8] = {80,70,60,50,40,30,20,10};
+#include "config.h"
+#include "TMP36.h"
+#include "HCSR04.h"
 
 // Last measured time
 unsigned long lastTime;
@@ -40,10 +15,25 @@ unsigned long lastFlashTime;
 
 void setup()
 {
-  // Setup the sensor
-  pinMode(ECHO_PIN, INPUT);
-  pinMode(TRIG_PIN, OUTPUT);
-  digitalWrite(TRIG_PIN, LOW); // Start low
+#if DEBUG
+  Serial.begin(9600);
+#endif // DEBUG
+
+  // Setup the temprature sensor
+  bool tmpReady = tmpSensorInit(TMP_PIN);
+#if DEBUG
+  if (tmpReady)
+  {
+    Serial.print("Temprature sensor ready");
+  }
+  else
+  {
+    Serial.print("Temprature sensor failed to initialize");
+  }
+#endif // DEBUG
+
+  // Setup the distance sensor
+  distSensorInit(ECHO_PIN, TRIG_PIN);
 
 #if USE_SHIFT_REGISTER
   // Setup the shift register
@@ -53,6 +43,7 @@ void setup()
   pinMode(LATCH, OUTPUT);
   digitalWrite(LATCH, LOW);
 #else
+  // Dedicate a pin for each LED
   for (int i = 0; i < 8; i++)
   {
     pinMode(ledPins[i], OUTPUT);
@@ -64,20 +55,16 @@ void setup()
   lastDistance = 0;
   lastStableDistanceTime = 0;
   lastFlashTime = 0;
-
-#if DEBUG
-  Serial.begin(9600);
-#endif // DEBUG
 }
 
 void loop()
 {
   bool error = true;
   float tempC = 0.0;
-  unsigned int dist = MAX_DISTANCE;
+  unsigned int dist = 0;
   
   // Get the current temprature measurement
-  if (measureTemp(&tempC))
+  if (measureTmpC(&tempC))
   {
     // Get the current distance measurement
     if (measureDist(tempC, &dist))
@@ -86,6 +73,12 @@ void loop()
       error = false;
     }
   }
+
+#if DEBUG
+  // Debug output
+  Serial.print(tempC);
+  Serial.println("C");
+#endif // DEBUG
 
   if (!error)
   {
@@ -156,73 +149,6 @@ void loop()
 
   // Wait before measuring again
   //delay(50);
-}
-
-bool measureTemp(float* measuredTempC)
-{
-  // Get the reading from the pin
-  int tempReading = analogRead(TEMP_PIN);
-
-  // Convert to volts
-  float tempVolts = tempReading * 5.0f / 1024.0f;
-
-  // Convert volts to temprature in celcius
-  float tempC = (tempVolts - 0.5) * 10.0;
-
-#if DEBUG
-  // Debug output
-  Serial.print(tempC);
-  Serial.println("C");
-#endif // DEBUG
-
-  // Indicate an error when the temprature is out of range
-  // TODO: Replace with actual sensor spec
-  if (tempC < -40 || tempC > 60)
-  {
-    return false;
-  }
-
-  // Store the measured temprature
-  *measuredTempC = tempC;
-
-  return true;
-}
-
-bool measureDist(float tempC, unsigned int* dist)
-{
-  // Trigger the sensor
-  digitalWrite(TRIG_PIN, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-
-  // Measure the response pulse duration in microseconds
-  unsigned long duration = pulseIn(ECHO_PIN, HIGH, PULSE_TIMEOUT);
-
-  // Duration should never be zero
-  if (duration == 0)
-  {
-    return false;
-  }
-  
-  // Convert duration in microseconds to distance in centimeters
-  // Speed of sound is approximately 343 meter per second
-  // time needs to be devided by two to account for the time to the object and back
-  *dist = (duration * (331.3 + 0.606 * tempC)) / 10000 / 2;
-
-  if (*dist > MAX_DISTANCE)
-  {
-    return false;
-  }
-
-#if DEBUG
-  // Debug output
-  Serial.print(duration);
-  Serial.print("uS - ");
-  Serial.print(*dist);
-  Serial.println("cm");
-#endif // DEBUG
-
-  return true;
 }
 
 void updateLights(long dist)
