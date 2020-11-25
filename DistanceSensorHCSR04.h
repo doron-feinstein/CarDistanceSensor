@@ -21,7 +21,7 @@ public:
   /**
    * Get a measurement reading from the sensor
    * @param Temprature in C for compensation
-   * @param Reference for the distance measured in (only updated when reading was successfully taken)
+   * @param Reference for the distance measured in centimeters (only updated when reading was successfully taken)
    * @return True if measurement was taken successfully, otherwise false
    */
   bool getReading(float tempC, unsigned int& dist) const;

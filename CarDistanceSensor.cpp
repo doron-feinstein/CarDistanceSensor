@@ -16,26 +16,39 @@ unsigned long lastStableDistanceTime;
 unsigned long lastFlashTime;
 
 CarDistanceSensor::CarDistanceSensor()
+#if USE_DIST_SENS_SEN0311
+: _distanceSensor(TX_PIN, RX_PIN)
+#else
 : _distanceSensor(TRIG_PIN, ECHO_PIN)
+#endif // USE_DIST_SENS_SEN0311
 {
   
 }
 
 bool CarDistanceSensor::init(bool debug)
 {
+  bool initSuccess = false;
+#if USE_DIST_SENS_SEN0311
+  // Wait for the sensor to send data
+  delay(500);
+  // Get one reading to see if the sensor is working
+  unsigned int dist = 0;
+  initSuccess = _distanceSensor.getReading(dist);
+#else
   // Setup the temprature sensor
-  bool tmpReady = tmpSensorInit(TMP_PIN);
+  initSuccess = tmpSensorInit(TMP_PIN);
   if(debug)
   {
     if (tmpReady)
     {
-      Serial.print("Temprature sensor ready");
+      Serial.println("Temprature sensor ready");
     }
     else
     {
-      Serial.print("Temprature sensor failed to initialize");
+      Serial.println("Temprature sensor failed to initialize");
     }
   }
+#endif // USE_DIST_SENS_SEN0311
 
   // Initialize the LED control
   initLEDCtl();
@@ -46,7 +59,7 @@ bool CarDistanceSensor::init(bool debug)
   lastStableDistanceTime = 0;
   lastFlashTime = 0;
 
-  return tmpReady;
+  return initSuccess;
 }
 
 void updateLights(long dist)
@@ -70,10 +83,19 @@ void CarDistanceSensor::update()
   bool error = true;
   float tempC = 0.0;
   unsigned int dist = 0;
-  
+
+#if USE_DIST_SENS_SEN0311
+  error = !_distanceSensor.getReading(dist);
+#else
   // Get the current temprature measurement
   if (measureTmpC(&tempC))
   {
+#if DEBUG
+  // Debug output
+  Serial.print(tempC);
+  Serial.println("C");
+#endif // DEBUG
+
     // Get the current distance measurement
     if(_distanceSensor.getReading(tempC, dist))
     {
@@ -81,12 +103,7 @@ void CarDistanceSensor::update()
       error = false;
     }
   }
-
-#if DEBUG
-  // Debug output
-  Serial.print(tempC);
-  Serial.println("C");
-#endif // DEBUG
+#endif // USE_DIST_SENS_SEN0311
 
   if (!error)
   {
