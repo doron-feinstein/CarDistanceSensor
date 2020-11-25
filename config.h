@@ -13,8 +13,8 @@
 #define TMP_PIN 0
 
 // Distance sensor digital pins
-#define TRIG_PIN 12
-#define ECHO_PIN 11
+#define TRIG_PIN 11
+#define ECHO_PIN 10
 
 // We can save a few ATMega pins by using a shift register for the LEDs
 // At the moment this is not needed as this project doesnt use all the pins
@@ -28,7 +28,7 @@
 // When not using the shift register the LED pins need to be defined
 // The array goes from the green LED for long distance at index 0 to
 //  the red LED at the shortest distance
-int ledPins[8] = {2, 3, 4, 5, 6, 7, 8, 9};
+static int ledPins[8] = {2, 3, 4, 5, 6, 7, 8, 9};
 #endif // USE_SHIFT_REGISTER
 
 // Amount of time in ms to wait before shutting down
@@ -36,6 +36,6 @@ int ledPins[8] = {2, 3, 4, 5, 6, 7, 8, 9};
 #define SLEEP_DIST_THESHOLD 5
 
 // LED distance thresholds in cm
-long threshold[8] = {80,70,60,50,40,30,20,10};
+const long threshold[8] = {80,70,60,50,40,30,20,10};
 
 #endif // __CONFIG_H_11_10_2019__
