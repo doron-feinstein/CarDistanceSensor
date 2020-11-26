@@ -40,10 +40,11 @@ static int ledPins[8] = {2, 3, 4, 5, 6, 7, 8, 9};
 #endif // USE_SHIFT_REGISTER
 
 // Amount of time in ms to wait before shutting down
-#define SLEEP_DELAY 10000
+#define SLEEP_DELAY_TIME 30000
+#define SLEEP_FLASH_TIME 2000
 #define SLEEP_DIST_THESHOLD 5
 
 // LED distance thresholds in cm
-const long threshold[8] = {80,70,60,50,40,30,20,10};
+const unsigned int threshold[8] = {80,70,60,50,40,30,20,10};
 
 #endif // __CONFIG_H_11_10_2019__

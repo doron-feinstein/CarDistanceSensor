@@ -9,8 +9,11 @@
 #if USE_DIST_SENS_SEN0311
 #include "DistanceSensorSEN0311.h"
 #else
+#include "TMP36.h"
 #include "DistanceSensorHCSR04.h"
 #endif // USE_DIST_SENS_SEN0311
+
+#include "LEDControl.h"
 
 /**
  * 
@@ -35,6 +38,12 @@ public:
 private:
 
   /**
+   * Update the display based on the given distance
+   * @param Distance value
+   */
+  void updateDisplay(unsigned int dist);
+
+  /**
    * Distance sensor
    */
 #if USE_DIST_SENS_SEN0311
@@ -42,6 +51,26 @@ private:
 #else
   DistanceSensorHCSR04 _distanceSensor;
 #endif // USE_DIST_SENS_SEN0311
+
+  /**
+   * LED control
+   */
+   LEDControl _LEDCtl;
+
+  /**
+   * Last measured time
+   */
+  unsigned long _lastTime;
+
+  /**
+   * Current stable distance
+   */
+  unsigned int _stableDistance;
+
+  /**
+   * Currnt amount of time the distance was stable
+   */
+  unsigned long _stableDistanceTime;
 };
 
 #endif // __CARDISTANCESENSOR_H_11_13_2020__

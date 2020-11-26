@@ -6,15 +6,6 @@
 #include "config.h"
 #include "CarDistanceSensor.h"
 
-#include "TMP36.h"
-#include "LEDControl.h"
-
-// Last measured time
-unsigned long lastTime;
-unsigned int lastDistance;
-unsigned long lastStableDistanceTime;
-unsigned long lastFlashTime;
-
 CarDistanceSensor::CarDistanceSensor()
 #if USE_DIST_SENS_SEN0311
 : _distanceSensor(TX_PIN, RX_PIN)
@@ -50,32 +41,12 @@ bool CarDistanceSensor::init(bool debug)
   }
 #endif // USE_DIST_SENS_SEN0311
 
-  // Initialize the LED control
-  initLEDCtl();
-
   // Initialize the sleep parameters
-  lastTime = millis();
-  lastDistance = 0;
-  lastStableDistanceTime = 0;
-  lastFlashTime = 0;
+  _lastTime = millis();
+  _stableDistance = 0;
+  _stableDistanceTime = 0;
 
   return initSuccess;
-}
-
-void updateLights(long dist)
-{
-  byte ligthtFlags = 0;
-  for (int i = 0; i < 8; i++)
-  {
-    ligthtFlags |= ((dist < threshold[i] ? 1 : 0) << i);
-  }
-  writeByte(ligthtFlags);
-}
-
-void flashLights()
-{
-  byte ligthtFlags = (lastFlashTime % 333 > 100) ? 0 : 0xFF;
-  writeByte(ligthtFlags);
 }
 
 void CarDistanceSensor::update()
@@ -111,56 +82,52 @@ void CarDistanceSensor::update()
     unsigned long curTime = millis();
 
     // Check if the controller time flipped
-    if (curTime < lastTime)
+    if (curTime < _lastTime)
     {
-      lastTime = 0;
+      _lastTime = 0;
     }
 
     // Update the amount of time the distance was stable
-    if (abs((int)lastDistance - (int)dist) <= SLEEP_DIST_THESHOLD)
+    if (abs((int)_stableDistance - (int)dist) <= SLEEP_DIST_THESHOLD)
     {
       // Distance is stable - keep counting the time
-      lastStableDistanceTime += curTime - lastTime;
+      _stableDistanceTime += curTime - _lastTime;
     }
     else
     {
-      // Distance is not stable - reset the time
-      lastStableDistanceTime = 0;
-      lastFlashTime = 0;
+      // Distance is not stable - reset the distance and time
+      _stableDistance = dist;
+      _stableDistanceTime = 0;
     }
 
     // Check if distance was stable for long enough
-    if (lastStableDistanceTime >= SLEEP_DELAY)
+    if (_stableDistanceTime >= SLEEP_DELAY_TIME)
     {
-      if (lastFlashTime <= 1000)
+      if (_stableDistanceTime <= (SLEEP_FLASH_TIME + SLEEP_DELAY_TIME))
       {
-        flashLights();
-
-        // Keep counting the time
-        lastFlashTime += curTime - lastTime;
+        // Flash the LEDs before turning off the light
+        _LEDCtl.flashLights();
       }
       else
       {
-        writeByte(0);
+        // Turn off all LEDs
+        _LEDCtl.writeByte(0);
       }
     }
     else
-    {      
-      updateLights(dist);
+    {
+      updateDisplay(dist);
     }
-
-    // Update the last distance
-    lastDistance = dist;
 
 #if DEBUG // Debug output
     Serial.print("Last Dist: ");
-    Serial.print(lastDistance);
+    Serial.println(_stableDistance);
     Serial.print(" last time: ");
-    Serial.println(lastStableDistanceTime);
+    Serial.println(_stableDistanceTime);
 #endif // DEBUG
 
     // Update last time
-    lastTime = curTime;
+    _lastTime = curTime;
   }
   else
   {
@@ -170,5 +137,24 @@ void CarDistanceSensor::update()
 
     // Wait to make sure everyting has sattled
     delay(10);
+  }
+}
+
+void CarDistanceSensor::updateDisplay(unsigned int dist)
+{
+  if(dist <= 3)
+  {
+    // Flash the LEDs to indicate the car is too close
+    _LEDCtl.flashLights();
+  }
+  else
+  {
+    // Turn on the LEDs based on the distance thresholds
+    byte ligthtFlags = 0;
+    for (int i = 0; i < 8; i++)
+    {
+      ligthtFlags |= ((dist < threshold[i] ? 1 : 0) << i);
+    }
+    _LEDCtl.writeByte(ligthtFlags);
   }
 }
