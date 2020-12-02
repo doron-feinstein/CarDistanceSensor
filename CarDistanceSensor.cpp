@@ -12,8 +12,13 @@ CarDistanceSensor::CarDistanceSensor()
 #else
 : _distanceSensor(TRIG_PIN, ECHO_PIN)
 #endif // USE_DIST_SENS_SEN0311
+#if USE_SHIFT_REGISTER
+, _LEDCtl(8, SR_DATA, SR_CLOCK, SR_LATCH)
+#else
+, _LEDCtl(8, ledPins)
+#endif // USE_SHIFT_REGISTER
 {
-  
+
 }
 
 bool CarDistanceSensor::init(bool debug)
@@ -111,7 +116,7 @@ void CarDistanceSensor::update()
       else
       {
         // Turn off all LEDs
-        _LEDCtl.writeByte(0);
+        _LEDCtl.updateLights(0);
       }
     }
     else
@@ -155,6 +160,6 @@ void CarDistanceSensor::updateDisplay(unsigned int dist)
     {
       ligthtFlags |= ((dist < threshold[i] ? 1 : 0) << i);
     }
-    _LEDCtl.writeByte(ligthtFlags);
+    _LEDCtl.updateLights(ligthtFlags);
   }
 }

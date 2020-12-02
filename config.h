@@ -29,9 +29,9 @@
 #define USE_SHIFT_REGISTER 0
 #if USE_SHIFT_REGISTER
 // Shift register pins
-#define DATA 8
-#define CLOCCK 10
-#define LATCH 9
+#define SR_DATA 8
+#define SR_CLOCK 10
+#define SR_LATCH 9
 #else
 // When not using the shift register the LED pins need to be defined
 // The array goes from the green LED for long distance at index 0 to

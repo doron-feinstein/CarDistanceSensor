@@ -53,9 +53,9 @@ private:
 #endif // USE_DIST_SENS_SEN0311
 
   /**
-   * LED control
+   * 8 distance indicating LEDs controller
    */
-   LEDControl _LEDCtl;
+  LEDControl _LEDCtl;
 
   /**
    * Last measured time
