@@ -58,6 +58,13 @@ private:
   LEDControl _LEDCtl;
 
   /**
+   * Status LED
+   * On when system is working correctly
+   * Blinks when there is an error
+   */
+  LEDControl _statusLED;
+
+  /**
    * Last measured time
    */
   unsigned long _lastTime;

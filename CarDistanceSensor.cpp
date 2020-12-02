@@ -17,6 +17,7 @@ CarDistanceSensor::CarDistanceSensor()
 #else
 , _LEDCtl(8, ledPins)
 #endif // USE_SHIFT_REGISTER
+, _statusLED(1, (const int[]){10,-1,-1,-1,-1,-1,-1,-1})
 {
 
 }
@@ -133,12 +134,18 @@ void CarDistanceSensor::update()
 
     // Update last time
     _lastTime = curTime;
+
+    // Indicate status is good
+    _statusLED.updateLights(1);
   }
   else
   {
     #if DEBUG // Debug output
       Serial.println("Error in distance measurement!");
     #endif // DEBUG
+
+    // Indicate error
+    _statusLED.flashLights();
 
     // Wait to make sure everyting has sattled
     delay(10);
