@@ -40,16 +40,6 @@ private:
    * @return True if a new packet has been fully read, otherwise false
    */
   bool readPacket();
-  
-  /**
-   * Transmit pin
-   */
-  int _txPin;
-  
-  /**
-   * Receive pin
-   */
-  int _rxPin;
 
   /**
    * Serial port for communication with the sensor
@@ -79,6 +69,16 @@ private:
    * Last good reading
    */
   unsigned int _distance;
+
+  /**
+   * Last time the sensor returned a good reading
+   */
+  unsigned long _lastReadingTime;
+
+  /**
+   * Based on the spec the response time should be 100-300ms in processed mode, so the timeout adds some margin for error
+   */
+  const unsigned long _readingTimeout = 400L;
 };
 
 #endif // __DISTANCESENSOR_SEN0311_H_11_25_2020__

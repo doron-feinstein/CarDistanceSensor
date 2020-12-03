@@ -7,13 +7,12 @@
 #include "DistanceSensorSEN0311.h"
 
 DistanceSensorSEN0311::DistanceSensorSEN0311(int txPin, int rxPin)
-: _txPin(txPin)
-, _rxPin(rxPin)
-, _SerialPort(rxPin, txPin)
+: _SerialPort(rxPin, txPin)
 , _buffer{0,0,0,0}
 , _bufferIdx(0)
 , _distanceGood(false)
 , _distance(-1)
+, _lastReadingTime(millis())
 {
   // Open the communication channel
   _SerialPort.begin(9600);
@@ -42,6 +41,11 @@ bool DistanceSensorSEN0311::getReading(unsigned int& dist)
 
       // Mark the distance value as good
       _distanceGood = true;
+
+      /**
+       * Update the reading time
+       */
+      _lastReadingTime = millis();
     }
     else
     {
@@ -63,6 +67,14 @@ bool DistanceSensorSEN0311::getReading(unsigned int& dist)
       _distanceGood = false;
     }
   }
+
+  // Check if the sensor communication is alive
+  if(millis() - _lastReadingTime >= _readingTimeout)
+  {
+    // The currnet disatance is stale so mark it as bad
+    _distanceGood = false;
+  }
+  
   dist = _distance;
   
   return _distanceGood;
