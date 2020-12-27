@@ -90,7 +90,10 @@ bool DistanceSensorSEN0311::readPacket()
     {
       return false; // Indicate the packet read is not complete
     }
-    _buffer[_bufferIdx++] = _SerialPort.read();
+    _buffer[_bufferIdx] = _SerialPort.read();
+
+    // Make sure the packet is aligned on the header in case the sensor and AVR lost synchronization
+    _bufferIdx = _buffer[0] == 0xFF ? _bufferIdx + 1 : 0;
   }
 
   // Packet reading is complete

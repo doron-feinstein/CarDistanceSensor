@@ -113,6 +113,9 @@ void CarDistanceSensor::update()
       {
         // Flash the LEDs before turning off the light
         _LEDCtl.flashLights();
+
+        // Indicate status is good
+        _statusLED.updateLights(1);
       }
       else
       {
@@ -122,7 +125,11 @@ void CarDistanceSensor::update()
     }
     else
     {
+      // Update the dispaly based on the current distance
       updateDisplay(dist);
+
+      // Indicate status is good
+      _statusLED.updateLights(1);
     }
 
 #if DEBUG // Debug output
@@ -134,9 +141,6 @@ void CarDistanceSensor::update()
 
     // Update last time
     _lastTime = curTime;
-
-    // Indicate status is good
-    _statusLED.updateLights(1);
   }
   else
   {
