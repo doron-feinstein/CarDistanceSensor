@@ -9,20 +9,9 @@
 // Enable serial oupt
 #define DEBUG 1
 
-// Distance sensor type
-#define USE_DIST_SENS_SEN0311 1
-
-#if USE_DIST_SENS_SEN0311
+// Distance sensor digital pins
 #define TX_PIN 12
 #define RX_PIN 13
-#else
-// Temprature sensor analog pin
-#define TMP_PIN 0
-
-// Distance sensor digital pins
-#define TRIG_PIN 11
-#define ECHO_PIN 10
-#endif // USE_DIST_SENS_SEN0311
 
 // We can save a few ATMega pins by using a shift register for the LEDs
 // At the moment this is not needed as this project doesnt use all the pins

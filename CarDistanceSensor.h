@@ -6,13 +6,7 @@
 #ifndef __CARDISTANCESENSOR_H_11_13_2020__
 #define __CARDISTANCESENSOR_H_11_13_2020__
 
-#if USE_DIST_SENS_SEN0311
 #include "DistanceSensorSEN0311.h"
-#else
-#include "TMP36.h"
-#include "DistanceSensorHCSR04.h"
-#endif // USE_DIST_SENS_SEN0311
-
 #include "LEDControl.h"
 
 /**
@@ -46,11 +40,7 @@ private:
   /**
    * Distance sensor
    */
-#if USE_DIST_SENS_SEN0311
   DistanceSensorSEN0311 _distanceSensor;
-#else
-  DistanceSensorHCSR04 _distanceSensor;
-#endif // USE_DIST_SENS_SEN0311
 
   /**
    * 8 distance indicating LEDs controller

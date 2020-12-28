@@ -7,11 +7,7 @@
 #include "CarDistanceSensor.h"
 
 CarDistanceSensor::CarDistanceSensor()
-#if USE_DIST_SENS_SEN0311
 : _distanceSensor(TX_PIN, RX_PIN)
-#else
-: _distanceSensor(TRIG_PIN, ECHO_PIN)
-#endif // USE_DIST_SENS_SEN0311
 #if USE_SHIFT_REGISTER
 , _LEDCtl(8, SR_DATA, SR_CLOCK, SR_LATCH)
 #else
@@ -25,27 +21,11 @@ CarDistanceSensor::CarDistanceSensor()
 bool CarDistanceSensor::init(bool debug)
 {
   bool initSuccess = false;
-#if USE_DIST_SENS_SEN0311
   // Wait for the sensor to send data
   delay(500);
   // Get one reading to see if the sensor is working
   unsigned int dist = 0;
   initSuccess = _distanceSensor.getReading(dist);
-#else
-  // Setup the temprature sensor
-  initSuccess = tmpSensorInit(TMP_PIN);
-  if(debug)
-  {
-    if (tmpReady)
-    {
-      Serial.println("Temprature sensor ready");
-    }
-    else
-    {
-      Serial.println("Temprature sensor failed to initialize");
-    }
-  }
-#endif // USE_DIST_SENS_SEN0311
 
   // Initialize the sleep parameters
   _lastTime = millis();
@@ -61,27 +41,7 @@ void CarDistanceSensor::update()
   float tempC = 0.0;
   unsigned int dist = 0;
 
-#if USE_DIST_SENS_SEN0311
   error = !_distanceSensor.getReading(dist);
-#else
-  // Get the current temprature measurement
-  if (measureTmpC(&tempC))
-  {
-#if DEBUG
-  // Debug output
-  Serial.print(tempC);
-  Serial.println("C");
-#endif // DEBUG
-
-    // Get the current distance measurement
-    if(_distanceSensor.getReading(tempC, dist))
-    {
-      // Indicate success
-      error = false;
-    }
-  }
-#endif // USE_DIST_SENS_SEN0311
-
   if (!error)
   {
     // Keep track of the amount of time passed since the distance updated
