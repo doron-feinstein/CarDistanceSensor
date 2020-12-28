@@ -6,8 +6,6 @@
 #ifndef __DISTANCESENSOR_SEN0311_H_11_25_2020__
 #define __DISTANCESENSOR_SEN0311_H_11_25_2020__
 
-#include <SoftwareSerial.h>
-
 /**
  * SEN0311 is a waterproof ultrasonic distance sensor
  * Values are obtained through serial communication at 9600bit/s baud rate
@@ -19,10 +17,8 @@ public:
 
   /**
    * Construct with given communication pins
-   * @param Transmit pin
-   * @param Receive pin
    */
-  DistanceSensorSEN0311(int txPin, int rxPin);
+  DistanceSensorSEN0311();
 
   /**
    * Get a measurement reading from the sensor
@@ -42,9 +38,7 @@ private:
   bool readPacket();
 
   /**
-   * Serial port for communication with the sensor
    */
-  SoftwareSerial _SerialPort;
 
   /**
    * Communication buffer which stores the following:

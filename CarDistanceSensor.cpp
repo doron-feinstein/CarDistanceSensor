@@ -7,7 +7,7 @@
 #include "CarDistanceSensor.h"
 
 CarDistanceSensor::CarDistanceSensor()
-: _distanceSensor(TX_PIN, RX_PIN)
+: _distanceSensor()
 #if USE_SHIFT_REGISTER
 , _LEDCtl(8, SR_DATA, SR_CLOCK, SR_LATCH)
 #else

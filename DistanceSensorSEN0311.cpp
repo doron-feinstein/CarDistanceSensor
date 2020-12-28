@@ -6,16 +6,13 @@
 #include <Arduino.h>
 #include "DistanceSensorSEN0311.h"
 
-DistanceSensorSEN0311::DistanceSensorSEN0311(int txPin, int rxPin)
-: _SerialPort(rxPin, txPin)
-, _buffer{0,0,0,0}
+DistanceSensorSEN0311::DistanceSensorSEN0311()
+: _buffer{0,0,0,0}
 , _bufferIdx(0)
 , _distanceGood(false)
 , _distance(-1)
 , _lastReadingTime(millis())
 {
-  // Open the communication channel
-  _SerialPort.begin(9600);
 }
 
 bool DistanceSensorSEN0311::getReading(unsigned int& dist)
@@ -86,11 +83,13 @@ bool DistanceSensorSEN0311::readPacket()
   while(_bufferIdx < 4)
   {
     // Make sure there is data to read
-    if(_SerialPort.available() == 0)
+    if(Serial.available() == 0)
     {
       return false; // Indicate the packet read is not complete
     }
-    _buffer[_bufferIdx] = _SerialPort.read();
+
+    // Read the next byte
+    _buffer[_bufferIdx] = Serial.read();
 
     // Make sure the packet is aligned on the header in case the sensor and AVR lost synchronization
     _bufferIdx = _buffer[0] == 0xFF ? _bufferIdx + 1 : 0;

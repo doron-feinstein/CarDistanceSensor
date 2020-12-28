@@ -10,9 +10,13 @@ CarDistanceSensor carDistanceSensor;
 
 void setup()
 {
+  // TODO: Serial usage for debug could be cleaned up more
+  // RX is used by SEN0311
+  // TX can be used for debug messages
+  Serial.begin(9600);
+  
   bool debug = false;
 #if DEBUG
-  Serial.begin(9600);
   debug = true;
 #endif // DEBUG
 

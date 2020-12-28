@@ -9,9 +9,6 @@
 // Enable serial oupt
 #define DEBUG 1
 
-// Distance sensor digital pins
-#define TX_PIN 12
-#define RX_PIN 13
 
 // We can save a few ATMega pins by using a shift register for the LEDs
 // At the moment this is not needed as this project doesnt use all the pins
