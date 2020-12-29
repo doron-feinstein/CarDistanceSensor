@@ -29,6 +29,12 @@ public:
    */
   bool getReading(unsigned int& dist);
 
+  /**
+   * Reset the communication with the sensor
+   * If the communication is in order a new packet should be ready for consumption
+   */
+  void reset();
+
 private:
 
   /**
@@ -37,8 +43,7 @@ private:
    */
   bool readPacket();
 
-  /**
-   */
+private:
 
   /**
    * Communication buffer which stores the following:
@@ -73,6 +78,16 @@ private:
    * Based on the spec the response time should be 100-300ms in processed mode, so the timeout adds some margin for error
    */
   const unsigned long _readingTimeout = 400L;
+
+  /**
+   * Expected packet header value
+   */
+  const unsigned char _packetHeader = 0xFF;
+
+  /**
+   * Number of bytes in one packet
+   */
+  const int _packetSize = 4;
 };
 
 #endif // __DISTANCESENSOR_SEN0311_H_11_25_2020__

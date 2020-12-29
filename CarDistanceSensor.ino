@@ -14,24 +14,19 @@ void setup()
   // RX is used by SEN0311
   // TX can be used for debug messages
   Serial.begin(9600);
-  
-  bool debug = false;
-#if DEBUG
-  debug = true;
-#endif // DEBUG
 
-  bool res = carDistanceSensor.init(debug);
-  if(debug)
+  // Initialize
+  bool res = carDistanceSensor.init();
+#if DEBUG
+  if (res)
   {
-    if (res)
-    {
-      Serial.print("Ready");
-    }
-    else
-    {
-      Serial.print("initialization failed");
-    }
+    Serial.print("Ready");
   }
+  else
+  {
+    Serial.print("initialization failed");
+  }
+#endif // DEBUG
 }
 
 void loop()

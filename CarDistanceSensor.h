@@ -19,13 +19,12 @@ public:
 
   /**
    * Initialize the sensors
-   * @param True for debug printouts
    * @return True if the system is ready, otherwise false
    */
-  bool init(bool debug);
+  bool init();
 
   /**
-   * 
+   * Get a distance sensor reading and update the display to indicate that distance
    */
   void update();
 

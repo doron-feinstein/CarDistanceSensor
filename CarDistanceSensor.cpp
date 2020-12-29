@@ -15,19 +15,20 @@ CarDistanceSensor::CarDistanceSensor()
 #endif // USE_SHIFT_REGISTER
 , _statusLED(1, (const int[]){10,-1,-1,-1,-1,-1,-1,-1})
 {
-
 }
 
-bool CarDistanceSensor::init(bool debug)
+bool CarDistanceSensor::init()
 {
+
   bool initSuccess = false;
-  // Wait for the sensor to send data
-  delay(500);
+
+  // Reset the communication with the sensor
+  _distanceSensor.reset();
   // Get one reading to see if the sensor is working
   unsigned int dist = 0;
   initSuccess = _distanceSensor.getReading(dist);
 
-  // Initialize the sleep parameters
+  // Initialize the LED flash / sleep parameters
   _lastTime = millis();
   _stableDistance = 0;
   _stableDistanceTime = 0;

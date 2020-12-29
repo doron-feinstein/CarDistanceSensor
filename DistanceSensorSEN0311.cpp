@@ -22,7 +22,7 @@ bool DistanceSensorSEN0311::getReading(unsigned int& dist)
   {
     // Calculate checksum by adding the header with the two byts of the reading
     int checksum = (_buffer[0]+_buffer[1]+_buffer[2])&0x00FF;
-    if(_buffer[0] == 0xFF && checksum == _buffer[3])
+    if(checksum == _buffer[3])
     {
       // Calculate the distance 
       _distance = (_buffer[1]<<8)+_buffer[2];
@@ -77,10 +77,53 @@ bool DistanceSensorSEN0311::getReading(unsigned int& dist)
   return _distanceGood;
 }
 
+void DistanceSensorSEN0311::reset()
+{
+  // Drop any pending packet data
+  _bufferIdx = 0;
+  // Turn the last reading to invalid'
+  _distanceGood = false;
+  
+  // Clear any previous pending data
+  for(int pendingData = Serial.available(); pendingData >= 0; pendingData--)
+  {
+    Serial.read();
+  }
+
+  // Wait until a full packet is ready to be consumed
+  unsigned long waitStartTime = millis();
+  while(millis() - waitStartTime <= 800)
+  {
+    if(Serial.available() > 0)
+    {
+      if(Serial.peek() != _packetHeader)
+      {
+        // Align on the header
+        Serial.read();
+      }
+      else if(Serial.available() >= _packetSize)
+      {
+        // There is a full packet pending so the reset is complete
+        break;
+      }
+    }
+    else
+    {
+      // Wait until more data is avaliable
+      delay(10);
+    }
+  }
+
+#if DEBUG
+  Serial.print("Data wait time: ");
+  Serial.println(millis() - waitStartTime);
+#endif // DEBUG
+}
+
 bool DistanceSensorSEN0311::readPacket()
 {
   // Read any avaliable data until the end of the packet
-  while(_bufferIdx < 4)
+  while(_bufferIdx < _packetSize)
   {
     // Make sure there is data to read
     if(Serial.available() == 0)
@@ -92,7 +135,7 @@ bool DistanceSensorSEN0311::readPacket()
     _buffer[_bufferIdx] = Serial.read();
 
     // Make sure the packet is aligned on the header in case the sensor and AVR lost synchronization
-    _bufferIdx = _buffer[0] == 0xFF ? _bufferIdx + 1 : 0;
+    _bufferIdx = _buffer[0] == _packetHeader ? _bufferIdx + 1 : 0;
   }
 
   // Packet reading is complete
