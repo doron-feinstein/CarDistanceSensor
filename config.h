@@ -9,7 +9,6 @@
 // Enable serial oupt
 #define DEBUG 1
 
-
 // We can save a few ATMega pins by using a shift register for the LEDs
 // At the moment this is not needed as this project doesnt use all the pins
 #define USE_SHIFT_REGISTER 0
@@ -26,7 +25,7 @@ static int ledPins[8] = {2, 3, 4, 5, 6, 7, 8, 9};
 #endif // USE_SHIFT_REGISTER
 
 // Amount of time in ms to wait before shutting down
-#define SLEEP_DELAY_TIME 30000
+#define SLEEP_DELAY_TIME 10000
 #define SLEEP_FLASH_TIME 2000
 #define SLEEP_DIST_THESHOLD 5
 

@@ -37,6 +37,19 @@ private:
   void updateDisplay(unsigned int dist);
 
   /**
+   * Disable unused functionality of the ATMega to save some power
+   */
+  void initPowerSaving();
+
+  /**
+   * Send the ATMega to sleep to save power
+   * Stay asleep as long as the distance reading is in the same range
+   */
+  void sendToSleep();
+
+private:
+
+  /**
    * Distance sensor
    */
   DistanceSensorSEN0311 _distanceSensor;
