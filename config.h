@@ -7,7 +7,7 @@
 #define __CONFIG_H_11_10_2019__
 
 // Enable serial oupt
-#define DEBUG 1
+#define DEBUG 0
 
 // Power pin for the distance sensor
 #define DS_POWER 11
