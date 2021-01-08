@@ -80,6 +80,11 @@ private:
    * Currnt amount of time the distance was stable
    */
   unsigned long _stableDistanceTime;
+
+  /**
+   * Time of the first error after a good reading
+   */
+  unsigned long _errorStartTime;
 };
 
 #endif // __CARDISTANCESENSOR_H_11_13_2020__

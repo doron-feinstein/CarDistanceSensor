@@ -19,7 +19,14 @@ CarDistanceSensor::CarDistanceSensor()
 , _LEDCtl(8, ledPins)
 #endif // USE_SHIFT_REGISTER
 , _statusLED(1, (const int[]){10,-1,-1,-1,-1,-1,-1,-1})
+, _lastTime(0)
+, _stableDistance(0)
+, _stableDistanceTime(0)
+, _errorStartTime(0)
 {
+  // Turn on the distance sensor
+  pinMode(DS_POWER, OUTPUT);
+  digitalWrite(DS_POWER, HIGH);
 }
 
 bool CarDistanceSensor::init()
@@ -43,24 +50,27 @@ bool CarDistanceSensor::init()
   return initSuccess;
 }
 
+// ATMega reset function
+void(* resetFunc) (void) = 0;
+
 void CarDistanceSensor::update()
 {
   bool error = true;
   unsigned int dist = 0;
 
+  // Keep track of the amount of time passed since the distance updated
+  unsigned long curTime = millis();
+
+  // Check if the controller time flipped
+  if (curTime < _lastTime)
+  {
+    _lastTime = 0;
+  }
+
   // Get a reading from the sensor
   error = !_distanceSensor.getReading(dist);
   if (!error)
   {
-    // Keep track of the amount of time passed since the distance updated
-    unsigned long curTime = millis();
-
-    // Check if the controller time flipped
-    if (curTime < _lastTime)
-    {
-      _lastTime = 0;
-    }
-
     // Update the amount of time the distance was stable
     if (abs((int)_stableDistance - (int)dist) <= SLEEP_DIST_THESHOLD)
     {
@@ -109,12 +119,38 @@ void CarDistanceSensor::update()
 
     // Update last time
     _lastTime = curTime;
+
+    // Indicate no error
+    _errorStartTime = 0;
   }
   else
   {
 #if DEBUG // Debug output
     Serial.println("Error in distance measurement!");
 #endif // DEBUG
+
+    // Update the error start time if needed
+    if(_errorStartTime == 0)
+    {
+      _errorStartTime = curTime;
+    }
+
+    // Check if its time to reset the device
+    // TODO: Handle timer flip
+    if((curTime - _errorStartTime) >= ERROR_RECOVERY_TIME)
+    {
+      // Power down the sensor enough to reset it
+      digitalWrite(DS_POWER, LOW);
+      delay(50);
+
+#if DEBUG // Debug output
+      Serial.println("Reseting board");
+      Serial.flush();
+#endif // DEBUG
+
+      // Restart the ATMega
+      resetFunc();  //call reset
+    }
 
     // Indicate error
     _statusLED.flashLights();

@@ -9,6 +9,12 @@
 // Enable serial oupt
 #define DEBUG 1
 
+// Power pin for the distance sensor
+#define DS_POWER 11
+
+// Amount of time allowed for recovery from error in milliseconds
+#define ERROR_RECOVERY_TIME 500
+
 // We can save a few ATMega pins by using a shift register for the LEDs
 // At the moment this is not needed as this project doesnt use all the pins
 #define USE_SHIFT_REGISTER 0
@@ -24,7 +30,7 @@
 static int ledPins[8] = {2, 3, 4, 5, 6, 7, 8, 9};
 #endif // USE_SHIFT_REGISTER
 
-// Amount of time in ms to wait before shutting down
+// Amount of time in ms to wait before shutting down in milliseconds
 #define SLEEP_DELAY_TIME 10000
 #define SLEEP_FLASH_TIME 2000
 #define SLEEP_DIST_THESHOLD 5
