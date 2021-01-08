@@ -12,7 +12,7 @@
 #include <avr/wdt.h>
 
 CarDistanceSensor::CarDistanceSensor()
-: _distanceSensor()
+: _distanceSensor(threshold[0] + 5)
 #if USE_SHIFT_REGISTER
 , _LEDCtl(8, SR_DATA, SR_CLOCK, SR_LATCH)
 #else

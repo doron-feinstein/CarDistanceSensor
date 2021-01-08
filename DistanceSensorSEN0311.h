@@ -17,8 +17,10 @@ public:
 
   /**
    * Construct with given communication pins
+   * Use maxDist to clamp the reading to a given maximum distance which helps avoid noise in distance spectrum we dont care about
+   * @param Maximum distance of intrest
    */
-  DistanceSensorSEN0311();
+  DistanceSensorSEN0311(unsigned int maxDist);
 
   /**
    * Get a measurement reading from the sensor
@@ -44,6 +46,12 @@ private:
   bool readPacket();
 
 private:
+
+  /**
+   * Maximum distance of intrest which we dont care about values further away
+   * Any reading past this value is clamped to this value
+   */
+  unsigned int _maxDist;
 
   /**
    * Communication buffer which stores the following:

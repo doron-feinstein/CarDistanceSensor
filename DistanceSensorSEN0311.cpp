@@ -6,8 +6,9 @@
 #include <Arduino.h>
 #include "DistanceSensorSEN0311.h"
 
-DistanceSensorSEN0311::DistanceSensorSEN0311()
-: _buffer{0,0,0,0}
+DistanceSensorSEN0311::DistanceSensorSEN0311(unsigned int maxDist)
+: _maxDist(maxDist)
+, _buffer{0,0,0,0}
 , _bufferIdx(0)
 , _distanceGood(false)
 , _distance(-1)
@@ -25,16 +26,13 @@ bool DistanceSensorSEN0311::getReading(unsigned int& dist)
     if(checksum == _buffer[3])
     {
       // Calculate the distance 
-      _distance = (_buffer[1]<<8)+_buffer[2];
-      if(_distance > 30)
-      {
-        _distance = _distance / 10;
-      }
-      else 
-      {
-        // Indiate the object is too close
-        _distance = 0;
-      }
+      _distance = (_buffer[1]<<8) | _buffer[2]; // Add the bytes to get distance in millimeters
+
+      // Convert to centimeters and handle reading below the measureable limit
+      _distance = (_distance > 30) ? _distance / 10 : 0;
+
+      // Clamp the reading to the maximum distance of intrest
+      _distance = min(_distance, _maxDist);
 
       // Mark the distance value as good
       _distanceGood = true;
