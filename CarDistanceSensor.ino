@@ -8,6 +8,9 @@
 
 CarDistanceSensor carDistanceSensor;
 
+/**
+ * @brief Initialize the main module
+ */
 void setup()
 {
   // TODO: Serial usage for debug could be cleaned up more
@@ -29,6 +32,9 @@ void setup()
 #endif // DEBUG
 }
 
+/**
+ * @brief Update the main module
+ */
 void loop()
 {
   carDistanceSensor.update();

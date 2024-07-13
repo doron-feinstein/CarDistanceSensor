@@ -10,7 +10,10 @@
 #include "LEDControl.h"
 
 /**
- * 
+ * @brief Measure and indicate the cars distance from the sensor
+ * Every call to update will get the latest distance measurement and update the LEDs to reflect the distance
+ * If no measurement was taken, the LEDs are turned off
+ * An additional LED is used to indicate the system is on by blinking at a low frequency
  */
 class CarDistanceSensor
 {

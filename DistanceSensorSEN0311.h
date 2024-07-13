@@ -9,7 +9,7 @@
 /**
  * SEN0311 is a waterproof ultrasonic distance sensor
  * Values are obtained through serial communication at 9600bit/s baud rate
- * 
+ * Reading request get the latest avaliable measurement
  */
 class DistanceSensorSEN0311
 {
